@@ -1,0 +1,127 @@
+package com.teurac;
+
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+import org.bukkit.Material;
+
+public class Grenade extends BukkitRunnable{
+	 
+	 Item item;
+	 int counter=0;
+	 int counter1=0;
+	 
+	 public Grenade(Item x) {
+		 
+		 this.item=x;
+	 }
+	 
+	 static void explozie(Block loc, double dia, Block orig) {
+			Material tip = loc.getType();
+			if(loc.getLocation().distanceSquared(orig.getLocation())<dia && (tip!=Material.AIR || tip==Material.TRIPWIRE_HOOK)) {
+				//Bukkit.broadcastMessage(String.valueOf(loc.getLocation().distanceSquared(orig.getLocation())));
+				//explozie(loc.add(0,0,1).clone(), dia, orig);
+				if(loc.equals(orig)) {
+					loc.setType(Material.AIR);
+				}
+				if(!loc.equals(orig)) {
+		    		loc.setType(Material.AIR);
+					Vector g= new Vector(loc.getX(),loc.getY(),loc.getZ());
+					Vector h= new Vector(orig.getX(),orig.getY(),orig.getZ());
+					FallingBlock fb=loc.getWorld().spawnFallingBlock(loc.getLocation(),Bukkit.createBlockData(tip));
+					Vector v=g.subtract(h);
+					fb.setVelocity(v.normalize());
+					fb.setDropItem(false);
+					fb.setInvulnerable(true);
+				}
+				explozie(loc.getLocation().add(0,0,1).getBlock(),dia,orig);
+				explozie(loc.getLocation().add(0,1,0).getBlock(),dia,orig);
+				explozie(loc.getLocation().add(1,0,0).getBlock(),dia,orig);
+				explozie(loc.getLocation().add(0,0,-1).getBlock(),dia,orig);
+				explozie(loc.getLocation().add(0,-1,0).getBlock(),dia,orig);
+				explozie(loc.getLocation().add(-1,0,0).getBlock(),dia,orig);
+				
+				
+			}
+	 }
+	 
+	 public void run() {
+		 Bukkit.getLogger().info("test");
+		 
+		 switch(item.getItemStack().getType()) {
+		 case MAGMA_CREAM:
+			 item.getLocation().getBlock().setType(Material.FIRE);
+			 explozie(item.getLocation().getBlock(), 10, item.getLocation().add(0,-1,0).getBlock());
+			 item.getWorld().createExplosion(item.getLocation(), 5,false,false);
+			 item.remove();
+			 this.cancel();
+			 break;
+		 case BLAZE_ROD:
+			 //de facut
+			 Location loc=item.getLocation();
+			 while(counter1<50) { 
+				 double rand = Math.random();
+				 Bukkit.getLogger().info("molotov");
+				 
+				 if(rand<0.25) {
+					 if (new Location(item.getWorld(),loc.getX(),loc.getY(),loc.getZ()+1).getBlock().getType()==Material.AIR)
+					 loc=loc.add(0,0,1);
+				 }else if(rand<0.5) {
+					 if (new Location(item.getWorld(),loc.getX(),loc.getY(),loc.getZ()-1).getBlock().getType()==Material.AIR)
+					 loc=loc.add(0,0,-1);
+				 }else if(rand<0.75) {
+					 if (new Location(item.getWorld(),loc.getX()+1,loc.getY(),loc.getZ()).getBlock().getType()==Material.AIR)
+					 loc=loc.add(1,0,0);
+				 }else {
+					 if (new Location(item.getWorld(),loc.getX()-1,loc.getY(),loc.getZ()).getBlock().getType()==Material.AIR)
+					 loc=loc.add(-1,0,0);
+				 }
+				 
+				 if(loc.getBlock().getType()==Material.AIR) {
+					 loc.getBlock().setType(Material.FIRE);
+				 }
+
+				 counter1=counter1+1;
+			 }
+				 item.remove();
+				 this.cancel();
+			 
+			 break;
+		 case SLIME_BALL:
+			 if(counter<50) { 
+				 Bukkit.getLogger().info("smoke");
+				 item.getWorld().spawnParticle(Particle.SMOKE_LARGE,item.getLocation().add(0,1,0),50,2,2,2,0);
+				 item.getWorld().spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,item.getLocation().add(0,1,0),50,2,2,2,0);
+				 counter=counter+1;
+			 }else {
+				 item.remove();
+				 this.cancel();
+			 }
+			 break;
+		 case BLAZE_POWDER:
+			 List<Player> jucatori=item.getWorld().getPlayers();
+			 Bukkit.getLogger().info("test1");
+			 for(int i =0;i<jucatori.size();i++) {
+				 if(jucatori.get(i).hasLineOfSight(item)) {
+					 Bukkit.getLogger().info(jucatori.get(i).getName());
+					 jucatori.get(i).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,80,1));
+				 }
+			 }
+			 item.remove();
+			 this.cancel();
+			 break;
+		 }
+	 }
+}
