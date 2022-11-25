@@ -1,0 +1,48 @@
+package com.teurac;
+
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+public class DelayAS extends BukkitRunnable{
+	World world;
+	Player player;
+	JavaPlugin plugin;
+	Location loc;
+	public DelayAS(World w,Player p,JavaPlugin plu) {
+		this.world=w;
+		this.player=p;
+		this.plugin=plu;
+	}
+	@Override
+	public void run() {
+		loc=player.getLocation();
+		double yaw=loc.getYaw();
+		double pitch= loc.getPitch();
+		double deviatie=1;
+		double x = -Math.sin(yaw*Math.PI/180)*0.8;
+		double y = 1.5;
+		double z = Math.cos(yaw*Math.PI/180)*0.8;
+		if(player.isSneaking()) {
+			y=1.1;
+		}
+		Vector pos= new Vector(x,y,z);
+		double y1 = -Math.sin((pitch+deviatie*(Math.random()*10-5))*Math.PI/180);	//3 si 1.5 sunt cat de imprastiat sa fie
+		double x1 = (-Math.sin((yaw+deviatie*(Math.random()*10-5))*Math.PI/180))*Math.sin((pitch+deviatie*(Math.random()*10-5)+90)*Math.PI/180);
+		double z1 = (Math.cos((yaw+deviatie*(Math.random()*10-5))*Math.PI/180))*Math.sin((pitch+deviatie*(Math.random()*10-5)+90)*Math.PI/180);
+		Vector viteza= new Vector(x1,y1,z1).multiply(4);
+		Snowball glont=world.spawn(player.getLocation().add(pos), Snowball.class);
+		glont.setVelocity(viteza);
+		glont.setShooter(player);
+		glont.setGravity(false);
+		glont.setMetadata("Minigun",new FixedMetadataValue(plugin,1));
+		player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation().add(0,1,0), 1, 0, 0, 0, 0);
+	}
+
+}
