@@ -1,0 +1,170 @@
+
+Global xec=512
+Global yec=512
+Global cx
+Global cy
+Global minx.d=-2
+Global maxx.d=2
+Global miny.d=-2
+Global maxy.d=2
+Global maxculoare
+Global iteratii=512
+Global Dim v(iteratii+1)
+Global Dim paleta(iteratii+1)
+Global t=0
+Structure complex
+  real.d
+  img.d
+EndStructure
+
+Global scale=4
+Global colorati
+Global Dim m.complex(xec+1,yec+1)
+ecran=OpenWindow(#PB_Any,100,100,xec,yec,"")
+imagine=CreateImage(#PB_Any,xec,yec)
+Global pasx.d=(Abs(maxx)+Abs(minx))/xec
+Global pasy.d=(Abs(miny)+Abs(maxy))/yec
+Global colormin=1
+Global colormax=255*256*256
+
+imaginegad=ImageGadget(#PB_Any,0,0,xec,yec,ImageID(imagine))
+Procedure calculnrcomp()
+  pasx.d=(Abs(maxx-minx))/xec
+  pasy.d=(Abs(maxy-miny))/yec
+  For x=0 To xec
+    vx.d=minx+pasx*x
+    For y=0 To yec
+      m(x,y)\real=vx
+      m(x,y)\img=miny+pasy*y
+    Next
+  Next
+EndProcedure
+Procedure afisare()
+  Box(0,0,xec,yec,#Black)
+  For x=0 To xec-1
+    For y=0 To yec-1
+      
+      If m(x,y)\real>=iteratii
+        ;Plot(x,y,RGB(255,255,255))
+      Else
+        ;cul.f=(255/t)*m(x,y)\real
+        cul.f=paleta(Int(m(x,y)\real))
+        
+        ;hsv\v=10/(1+cul)
+        
+        
+        
+      EndIf
+      
+    Next
+  Next
+  
+EndProcedure
+Procedure afisareold()
+  Box(0,0,xec,yec,#Black)
+  For x=0 To xec-1
+    For y=0 To yec-1
+      
+      If m(x,y)\real>=iteratii
+        Plot(x,y,RGB(255,255,255))
+      Else
+        cul.f=(16777216/t)*m(x,y)\real
+        
+        Plot(x,y,cul)
+        
+      EndIf
+      
+    Next
+  Next
+  
+EndProcedure
+Procedure mandelbrot(minx.d,maxx.d,miny.d,maxy.d,iteratii)
+  t=0
+  For x=0 To xec
+    For y=0 To yec
+      xx.d=0.0
+      yy.d=0.0
+      For h=0 To iteratii
+        xtemp.d=xx*xx-yy*yy+m(x,y)\real
+        yy=2.0*xx*yy+m(x,y)\img
+        xx=xtemp
+        modul.d=(xx*xx+yy*yy)
+        If modul>=4.0
+          Break
+        EndIf
+      Next
+      If h>maxculoare And h<iteratii And v(h)>100
+        maxculoare=h
+      EndIf
+      v(h)=v(h)+1
+      m(x,y)\real=h
+      m(x,y)\img=maxculoare
+    Next
+  Next
+  ;colorati=0
+  tt=colormax-colormin
+  For i=0 To iteratii
+    If v(i)<>0
+      t=t+1
+      ;colorati=colorati+v(i)
+      ;paleta(i)=colorati
+      paleta(i)=i*(tt)/maxculoare
+    EndIf
+  Next
+ 
+  
+  ;For i=0 To iteratii
+  ;  If v(i)<>0
+  ;    paleta(i)=(paleta(i)*tt)/colorati
+  ;  EndIf
+  ;Next
+  
+EndProcedure
+calculnrcomp()
+
+mandelbrot(minx,maxx,miny,maxy,iteratii)
+StartDrawing(ImageOutput(imagine))
+afisareold()
+StopDrawing()
+SetGadgetState(imaginegad,ImageID(imagine))
+Repeat
+  
+  event=WaitWindowEvent()
+  
+  If event=#PB_Event_Gadget
+    If EventGadget()=imaginegad
+      If EventType()=#PB_EventType_LeftClick
+        cx=WindowMouseX(ecran)
+        cy=WindowMouseY(ecran)
+        rapx.d=((cx)/xec)
+        rapy.d=(cy/yec)
+        jx.d=Abs(maxx-minx)
+        jy.d=Abs(maxy-miny)
+        newx.d=minx+jx*rapx
+        maxx=newx+Abs(jx/scale)
+        minx=newx-Abs(jx/scale)
+        newy.d=miny+jy*rapy
+        maxy=newy+Abs(jy/scale)
+        miny=newy-Abs(jy/scale)
+        
+        maxculoare=0
+        calculnrcomp()
+        mandelbrot(minx,maxx,miny,maxy,iteratii)
+        StartDrawing(ImageOutput(imagine))
+        afisareold()
+        
+        StopDrawing()
+        SetGadgetState(imaginegad,ImageID(imagine))
+      EndIf
+      If EventType()=#PB_EventType_RightClick
+        cx=WindowMouseX(ecran)
+        cy=WindowMouseY(ecran)
+        Debug m(cx,cy)\real
+        Debug paleta(Int(m(cx,cy)\real))
+        Debug maxculoare
+      EndIf
+    EndIf
+  EndIf
+  
+  
+Until event=#PB_Event_CloseWindow
