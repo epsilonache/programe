@@ -1,0 +1,130 @@
+OpenConsole()
+PrintN("Introdu un string mai mic de 12 caractere")
+string.s=Input()
+PrintN("Introdu o rezolutie(intre 10 si 100000)")
+ncerc.i=Val(Input())
+PrintN("Introdu nr. cercuri pe cadru")
+nrpc.i=Val(Input())
+PrintN("Introdu modul de desenare")
+PrintN("1.Rosu   2.Verde   3.Alb   4.Galben   5.Albastru   6.Rainbow   7.Goale")
+alegere.i=Val(Input())
+Input()
+CloseConsole()
+lun=1000
+lat=500
+counter=0
+ok=1
+Dim mask(lun,lat)
+win=OpenWindow(#PB_Any, 100,100,lun,lat,"atestat")
+img=CreateImage(#PB_Any,lun,lat)
+imggad=ImageGadget(#PB_Any,0,0,lun,lat,ImageID(img))
+
+Structure cerc
+  x.i
+  y.i
+  r.i
+  c.b
+EndStructure
+Dim cercuri.cerc(ncerc)
+
+LoadFont(0,"Courier New",200)
+
+StartDrawing(ImageOutput(img))
+Box(0,0,lun,lat,#Black)
+DrawingFont(FontID(0))
+
+  DrawText(0,250,Right(string,Len(string)-6),#White)
+  DrawText(0,0,Left(string,6),#White)
+  
+
+
+For i=0 To lun-1
+  For j=0 To lat-1
+    If Point(i,j)>0
+      mask(i,j)=1
+    Else
+      mask(i,j)=0
+    EndIf
+  Next
+Next
+Box(0,0,lun,lat,#Black)
+StopDrawing()
+
+
+Repeat 
+  event=WindowEvent()
+  Delay(100)
+  SetGadgetState(imggad,ImageID(img))
+  ;crestere
+  For i=0 To counter
+    For j=0 To counter
+      If i<>j
+         dist=(cercuri(j)\x-cercuri(i)\x)*(cercuri(j)\x-cercuri(i)\x)+(cercuri(j)\y-cercuri(i)\y)*(cercuri(j)\y-cercuri(i)\y)
+         If dist<(cercuri(i)\r+cercuri(j)\r)*(cercuri(i)\r+cercuri(j)\r)
+           cercuri(i)\c=0
+         EndIf
+         EndIf
+    Next
+    If cercuri(i)\c=1 
+      cercuri(i)\r=cercuri(i)\r+1
+    EndIf
+    
+  Next
+  
+    
+    
+  ;spawnare
+  If counter<ncerc-1
+    For i=0 To nrpc-1
+      xc=Random(lun-1)
+      yc=Random(lat-1)
+      If mask(xc,yc)=1 And counter<ncerc-1
+        ok=1
+        For j=0 To counter
+          dist=(cercuri(j)\x-xc)*(cercuri(j)\x-xc)+(cercuri(j)\y-yc)*(cercuri(j)\y-yc)
+          If dist<cercuri(j)\r*cercuri(j)\r
+            i=i-1
+            ok=0
+            Break
+          EndIf
+        Next
+        If ok=1 
+        cercuri(counter)\x=xc
+        cercuri(counter)\y=yc
+        cercuri(counter)\r=1
+        cercuri(counter)\c=1
+        counter=counter+1
+      EndIf
+      
+        
+      EndIf
+    Next
+  EndIf
+  
+    ;desenare
+    StartDrawing(ImageOutput(img))
+    Box(0,0,lun,lat,#Black)
+    For i=0 To counter
+      Select alegere
+          Case 1:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,#Red)
+          Case 2:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,#Green)
+          Case 3:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,#White)
+          Case 4:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,#Yellow)
+          Case 5:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,#Blue)
+          
+          Case 6:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,Random(16777216))
+          Case 7:
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r,#White)
+            Circle(cercuri(i)\x,cercuri(i)\y,cercuri(i)\r-1,#Black)
+            EndSelect
+    Next
+    StopDrawing()
+        
+  
+  Until event=#PB_Event_CloseWindow
