@@ -1,0 +1,73 @@
+Global xec=500
+Global yec=500
+Global ecran=OpenWindow(#PB_Any,100,100,xec,yec,"")
+Global imagine=CreateImage(#PB_Any,xec,yec)
+Global imaginegad=ImageGadget(#PB_Any,0,0,xec,yec,ImageID(imagine))
+Global n=50
+Global Dim pixel(n,n)
+Global Dim nextgen(n,n)
+  For i=0 To n
+    For j=0 To n
+      pixel(i,j)=Random(1,0)
+    Next
+  Next
+  
+Procedure afis()
+  rap=yec/n
+  StartDrawing(ImageOutput(imagine))
+  For i=0 To n
+    For j=0 To n
+      If pixel(i,j)=1
+        Box(i*rap,j*rap,rap,rap,#Red)
+      Else
+        Box(i*rap,j*rap,rap,rap,#Black)
+      EndIf
+    Next
+  Next
+  StopDrawing()
+  SetGadgetState(imaginegad,ImageID(imagine))
+
+EndProcedure
+Procedure vii(x,y)
+  ProcedureReturn pixel(x-1,y-1)+pixel(x,y-1)+pixel(x+1,y-1)+pixel(x-1,y)+pixel(x+1,y)+pixel(x-1,y+1)+pixel(x,y+1)+pixel(x+1,y+1)
+  EndProcedure
+  Procedure gen(x,y)
+    If pixel(x,y)=1
+  If vii(x,y)<2
+    nextgen(x,y)=0
+  ElseIf vii(x,y)=2 Or vii(x,y)=3
+    nextgen(x,y)=1
+  ElseIf vii(x,y)>3
+    nextgen(x,y)=0
+  EndIf
+Else
+  If vii(x,y)=3
+    nextgen(x,y)=1
+  EndIf
+EndIf
+EndProcedure
+
+afis()
+Repeat
+  event=WaitWindowEvent()
+  Delay(50)
+  ;If EventGadget()=imaginegad
+    ;If EventType()=#PB_EventType_RightClick
+      
+  For i=1 To n-1
+  For j=1 To n-1
+    gen(i,j)
+  Next
+Next
+
+For i=0 To n
+  For j=0 To n
+    pixel(i,j)=nextgen(i,j)
+  Next
+Next
+
+afis()
+
+    ;EndIf
+  ;EndIf
+  Until event=#PB_Event_CloseWindow
