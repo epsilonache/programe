@@ -1,0 +1,56 @@
+package com.teurac;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+
+public class Hunger extends BukkitRunnable {
+	public static ArrayList<Pereche> sprinturi = new ArrayList<>();
+	
+	public Hunger() {
+		 
+	 }
+	@Override
+	public void run() {
+		
+		
+		for(int j=0;j<sprinturi.size();j++) {
+			Player player=sprinturi.get(j).getPlayer();
+			//Bukkit.broadcastMessage(player.getDisplayName());
+			//Bukkit.broadcastMessage(String.valueOf(j));
+			if(sprinturi.get(j).getStare()==-1) {
+				
+				if(player.getFoodLevel()>6) {
+					player.setFoodLevel(player.getFoodLevel()-1);
+				}else {
+					
+					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,99999,1));
+					sprinturi.get(j).setStare(0);
+					
+					//this.cancel();
+				}
+			}else {
+				if(player.getFoodLevel()<20) {
+					player.setFoodLevel(player.getFoodLevel()+1);
+				}else {
+					if(!player.isSneaking()) {//in caz ca are scope
+						player.removePotionEffect(PotionEffectType.SLOW);
+						sprinturi.get(j).setStare(1);
+					}
+					
+					//this.cancel();
+				}
+			}
+		}
+		
+		//this.cancel();
+	}
+}
+
+
