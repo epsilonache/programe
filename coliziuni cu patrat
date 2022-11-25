@@ -1,0 +1,204 @@
+Global xmax=1920
+Global ymax=1080
+ymin=0
+xmin=0 
+mutex=CreateMutex()
+Global lunx=100
+Global luny=100
+spritex=100
+spritey=100
+tintax=50
+tintay=50
+InitSprite()
+InitKeyboard()
+InitMouse()
+Structure tip
+  x.f
+  y.f
+  dx.f
+  dy.f
+  unghi.f
+  spriteid.i
+  doilealovx.f
+  doilealovy.f
+  primalovx.f
+  primalovy.f
+  lovitsus.i
+  lovitlaterale.i
+EndStructure
+Structure tippatrate
+  spriteid.i
+  bors.i
+  bord.i
+  borsus.i
+  borjos.i
+  culoare.i
+  EndStructure
+  Global NewList bile.tip()
+  Global NewList patrate.tippatrate()
+Procedure mutabile(*a)
+  Shared mutex
+  Repeat
+    If TryLockMutex(mutex)
+      ResetList(bile())
+      ForEach bile()
+        If bile()\x < xmax And bile()\x>0 And bile()\y>0 And bile()\y<ymax
+          If bile()\x<30 Or bile()\x>1890
+          bile()\dx=bile()\dx*(-1)
+        EndIf
+
+        If bile()\y<30 Or bile()\y>1050
+          bile()\dy=bile()\dy*(-1)
+        EndIf
+       
+    If ListSize(bile())>0 And SpritePixelCollision(patrate()\borjos,50,150,bile()\spriteid,bile()\x,bile()\y)
+      bile()\lovitsus=1
+      
+    EndIf
+    
+    If ListSize(bile())>0 And SpritePixelCollision(patrate()\bord,150,50,bile()\spriteid,bile()\x,bile()\y)
+      
+      bile()\lovitlaterale=1
+
+    EndIf
+    If ListSize(bile())>0 And SpritePixelCollision(patrate()\borsus,50,50,bile()\spriteid,bile()\x,bile()\y)
+      
+      bile()\lovitsus=1
+    EndIf
+
+    If ListSize(bile())>0 And SpritePixelCollision(patrate()\bors,50,50,bile()\spriteid,bile()\x,bile()\y)
+      bile()\lovitlaterale=1
+    EndIf
+
+        If bile()\lovitlaterale=1
+          bile()\dx=bile()\dx*(-1)
+          bile()\lovitlaterale=0
+          EndIf
+        If bile()\lovitsus=1
+          bile()\dy=bile()\dy*(-1)
+          bile()\lovitsus=0
+          EndIf
+      bile()\x=bile()\x+bile()\dx
+      bile()\y=bile()\y+bile()\dy
+   
+    Else
+      DeleteElement(bile(),0)
+    EndIf
+    Next
+    UnlockMutex(mutex)
+    
+  EndIf
+  Delay(10)
+      Until 0=1
+    EndProcedure
+    Procedure.f calculunghi(mx,my,i,j)
+  unghi.f=0
+  If mx>i And my>j
+      unghi=Degree(ATan((my-j)/(mx-i))) ;cad1
+    ElseIf my>j And mx<i
+      unghi=Degree(ATan((my-j)/(mx-i)))+180 ;cad3
+    ElseIf my<j And mx<i
+      unghi=Degree(ATan((my-j)/(mx-i)))+180 ;cad2
+    ElseIf  my<j And mx>i
+      unghi=Degree(ATan((my-j)/(mx-i))) ;cad4
+    EndIf
+    ProcedureReturn unghi.f
+    EndProcedure
+    
+ 
+  
+
+    OpenScreen(xmax,ymax,32,"",#PB_Screen_WaitSynchronization,60)
+    
+    
+Global patratsprite=CreateSprite(#PB_Any,lunx,luny)
+    StartDrawing(SpriteOutput(patratsprite))
+    Box(0,0,lunx,luny,RGB(255,0,0))
+    StopDrawing()
+  
+  Procedure creazapatrat(lunx,luny)
+    AddElement(patrate())
+    patrate()\culoare=RGB(50,50,30)
+    
+    patrate()\spriteid=CopySprite(patratsprite,#PB_Any)
+    
+    
+    patrate()\bors=CreateSprite(#PB_Any,10,luny,#PB_Sprite_PixelCollision)
+    StartDrawing(SpriteOutput(patrate()\bors))
+    Box(0,0,10,luny,RGB(255,0,0))
+    StopDrawing()
+    
+    patrate()\borsus=CreateSprite(#PB_Any,lunx,10,#PB_Sprite_PixelCollision)
+    StartDrawing(SpriteOutput(patrate()\borsus))
+    Box(0,0,lunx,10,RGB(255,0,0))
+    StopDrawing()
+    
+    patrate()\bord=CreateSprite(#PB_Any,10,luny,#PB_Sprite_PixelCollision)
+    StartDrawing(SpriteOutput(patrate()\bord))
+    Box(0,0,10,luny,RGB(255,0,0))
+    StopDrawing()
+    
+    patrate()\borjos=CreateSprite(#PB_Any,lunx,10,#PB_Sprite_PixelCollision)
+StartDrawing(SpriteOutput(patrate()\borjos))
+    Box(0,0,lunx,10,RGB(255,0,0))
+    StopDrawing()
+    
+    EndProcedure
+
+
+tinta=CreateSprite(#PB_Any,tintax,tintay,#PB_Sprite_PixelCollision)
+StartDrawing(SpriteOutput(tinta))
+Circle(25,25,25,RGB(0,0,255))
+StopDrawing()
+
+creazapatrat(lunx,luny)
+CreateThread(@mutabile(),1)
+Repeat
+  ExamineKeyboard()
+  ExamineMouse()
+  mx=MouseX()
+  my=MouseY()
+  If MouseButton(#PB_MouseButton_Left)
+    btns=1
+  ElseIf btns=1 And ListSize(bile())<10
+    LockMutex(mutex)
+    AddElement(bile())
+    bile()\x=600
+    bile()\y=600
+    bile()\unghi=calculunghi(mx+25,my+25,600,600)
+    bile()\dx=10*Cos(Radian(bile()\unghi))
+    bile()\dy=10*Sin(Radian(bile()\unghi))
+    bile()\spriteid=CreateSprite(#PB_Any,20,20,#PB_Sprite_PixelCollision)
+    StartDrawing(SpriteOutput(bile()\spriteid))
+    Circle(10,10,10,RGB(0,0,255))
+    btns=1
+    StopDrawing()
+    UnlockMutex(mutex)
+  EndIf
+  
+  
+  
+  
+  ClearScreen(#Black)
+  DisplaySprite(tinta,mx-25,my-25)
+  Delay(10)
+  LockMutex(mutex)
+  ;ResetList(bile())
+  ForEach bile()
+   
+    DisplaySprite(bile()\spriteid,bile()\x,bile()\y)
+  Next
+  UnlockMutex(mutex)
+  
+  ForEach patrate()
+    DisplaySprite(patrate()\spriteid,50,50)
+    DisplaySprite(patrate()\bord,50+lunx,50)
+    DisplaySprite(patrate()\bors,50,50)
+    DisplaySprite(patrate()\borsus,50,50)
+    DisplaySprite(patrate()\borjos,50,50+luny)
+    LockMutex(mutex)
+    
+  UnlockMutex(mutex)
+  Next
+  FlipBuffers()
+Until KeyboardPushed(#PB_Key_Escape)
