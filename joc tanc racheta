@@ -1,0 +1,301 @@
+Global xmax=1920
+Global ymax=1080
+ymin=0
+xmin=0 
+luntun=100 
+lattun=20
+
+spritex=100
+spritey=100
+tintax=50
+tintay=50
+viteza=3
+vx.f=1.41
+vy.f=1.41
+btndown=0
+Mutex=CreateMutex()
+InitSprite()
+InitKeyboard()
+InitMouse()
+Structure pozglont
+  unghi.f
+  x.f
+  y.f
+  vitezagl.f
+  spriteid.l
+  dx.f
+  dy.f
+  unghi2.f
+EndStructure
+Structure tip
+  hp.i
+  x.l
+  y.l
+  viteza.l
+  spriteid.i
+EndStructure
+Global NewList gloante.pozglont()
+Global NewList rachete.pozglont()
+Global NewList en.tip()
+Procedure mutaen()
+  
+EndProcedure
+Procedure.f calculunghi(mx,my,i,j)
+  unghi.f=0
+  If mx>i And my>j
+      unghi=ATan((mx-i)/(j-my))*180/3.1415+90.0
+    ElseIf my>j And mx<i
+      unghi=ATan((i-mx)/(my-j))*180/3.1415+90.0
+    ElseIf my<j And mx<i
+      unghi=ATan((i-mx)/(j-my))*-180/3.1415+270
+    ElseIf  my<j And mx>i
+      unghi=ATan((mx-i)/(j-my))*180/3.1415+270
+    EndIf
+    ProcedureReturn unghi.f
+  EndProcedure
+Procedure mutagloante(*a)
+  
+  Shared Mutex
+  Repeat
+    If TryLockMutex(Mutex)
+      ResetList(gloante())
+      ForEach gloante()
+        If gloante()\x < xmax And gloante()\x>0 And gloante()\y>0 And gloante()\y<ymax
+          gloante()\x=gloante()\x+gloante()\dx
+          gloante()\y=gloante()\y+gloante()\dy
+        Else 
+          DeleteElement(gloante(),0)
+          
+        EndIf
+      Next
+      ForEach rachete()
+        If rachete()\x < xmax And rachete()\x>0 And rachete()\y>0 And rachete()\y<ymax
+          ExamineMouse()
+          mx=MouseX()
+          my=MouseY()
+
+          
+          rachete()\unghi=calculunghi(mx,my,rachete()\x,rachete()\y)
+          If rachete()\unghi>360
+            rachete()\unghi=rachete()\unghi-360
+            EndIf
+          ;If Abs(rachete()\unghi-rachete()\unghi2)<5
+          rachete()\dx=rachete()\vitezagl*Cos(Radian(rachete()\unghi))
+          rachete()\dy=rachete()\vitezagl*Sin(Radian(rachete()\unghi))
+          rachete()\x=rachete()\x+rachete()\dx
+          rachete()\y=rachete()\y+rachete()\dy
+          rachete()\unghi2=rachete()\unghi
+          If rachete()\vitezagl>4
+            rachete()\vitezagl=rachete()\vitezagl-0.1
+            EndIf
+;         Else
+;           rachete()\dx=rachete()\vitezagl*Cos(Radian(rachete()\unghi2))
+;           rachete()\dy=rachete()\vitezagl*Sin(Radian(rachete()\unghi2))
+;           rachete()\x=rachete()\x+rachete()\dx
+;           rachete()\y=rachete()\y+rachete()\dy
+;           rachete()\vitezagl=rachete()\vitezagl+0.05
+;           EndIf
+        Else 
+          DeleteElement(rachete(),0)
+          
+        EndIf
+      Next
+      
+      UnlockMutex(Mutex)
+    EndIf
+    
+    Delay(10)
+    
+  Until 0
+  
+EndProcedure
+CreateThread(@mutagloante(),1)
+OpenScreen(xmax,ymax,32,"",#PB_Screen_WaitSynchronization,60)
+
+sprite=CreateSprite(#PB_Any,spritex,spritey)
+StartDrawing(SpriteOutput(sprite))
+Box(0,0,spritex,spritey,RGB(255,255,0))
+StopDrawing()
+
+tinta=CreateSprite(#PB_Any,tintax,tintay,#PB_Sprite_PixelCollision)
+StartDrawing(SpriteOutput(tinta))
+Circle(25,25,25,RGB(0,0,255))
+StopDrawing()
+
+tun=CreateSprite(#PB_Any,luntun,lattun)
+StartDrawing(SpriteOutput(tun))
+Box(luntun/2,0,luntun/2,lattun,RGB(0,255,0))
+StopDrawing()
+
+en1=CreateSprite(#PB_Any,50,50,#PB_Sprite_PixelCollision)
+StartDrawing(SpriteOutput(en1))
+Box(0,0,50,50,RGB(255,0,0))
+StopDrawing()
+
+i=100
+j=100
+unghi.f=0
+Repeat
+  
+  mor=0
+  mov=0
+  viteza=3
+  ExamineKeyboard()
+  If KeyboardPushed(#PB_Key_A) And i>xmin
+    mor=1
+  EndIf
+  If KeyboardPushed(#PB_Key_D) And i<xmax-spritex
+    mor=2
+  EndIf
+  
+  If KeyboardPushed(#PB_Key_S) And j<ymax-spritey
+    mov=1
+  EndIf
+  
+  If KeyboardPushed(#PB_Key_W) And j>ymin
+    mov=2
+  EndIf
+  If mor=1 And mov=1
+    i=i-viteza*vx
+    j=j+viteza*vy
+  Else
+    If mor=1 And mov=2
+      i=i-viteza*vx
+      j=j-viteza*vy
+    Else
+      If mor=2 And mov=1
+        i=i+viteza*vx
+        j=j+viteza*vy
+      Else
+        If mor=2 And mov=2
+          i=i+viteza*vx
+          j=j-viteza*vy
+        Else
+          If mor=0 And mov=1
+            j=j+viteza
+          Else
+            If mor=0 And mov=2
+              j=j-viteza
+            Else
+              If mor=1 And mov=0
+                i=i-viteza
+              Else
+                If mor=2 And mov=0
+                  i=i+viteza
+                EndIf
+              EndIf
+            EndIf
+          EndIf
+        EndIf
+      EndIf
+    EndIf
+  EndIf
+  
+  If     ExamineMouse()
+ mx=MouseX()
+my=MouseY()
+    
+    
+    unghi=calculunghi(mx,my,i,j)
+    If MouseButton(#PB_MouseButton_Left)
+      btndown=1
+      
+    Else
+      If btndown=1
+        LockMutex(Mutex)
+        AddElement(gloante())
+        gloante()\x=i+spritex/2
+        gloante()\y=j+spritey/2
+        gloante()\unghi=unghi
+        gloante()\vitezagl=10
+        gloante()\dx=gloante()\vitezagl*Cos(Radian(gloante()\unghi))
+        gloante()\dy=gloante()\vitezagl*Sin(Radian(gloante()\unghi))
+        gloante()\spriteid=CreateSprite(#PB_Any,5,5,#PB_Sprite_PixelCollision)
+        StartDrawing(SpriteOutput(gloante()\spriteid))
+        Box(0,0,5,5,RGB(255,0,255))
+        StopDrawing()
+        
+        UnlockMutex(Mutex)
+        btndown=0
+      EndIf
+    EndIf
+    If MouseButton(#PB_MouseButton_Right)
+      btndownr=1
+    Else 
+      If btndownr=1
+        LockMutex(Mutex)
+        AddElement(rachete())
+        rachete()\x=i+spritex/2
+        rachete()\y=j+spritey/2
+        rachete()\unghi=unghi
+        rachete()\unghi2=unghi
+        rachete()\vitezagl=5
+        rachete()\dx=rachete()\vitezagl*Cos(Radian(rachete()\unghi))
+        rachete()\dy=rachete()\vitezagl*Sin(Radian(rachete()\unghi))
+        rachete()\spriteid=CreateSprite(#PB_Any,50,50,#PB_Sprite_PixelCollision)
+        StartDrawing(SpriteOutput(rachete()\spriteid))
+        Box(0,0,50,550,RGB(255,0,255))
+        StopDrawing()
+        
+        UnlockMutex(Mutex)
+        btndownr=0
+        EndIf
+  EndIf
+  EndIf
+  ; examinemouse
+    
+    If KeyboardPushed(#PB_Key_1)
+      unudown=1
+    Else
+      If unudown=1
+        g=-2
+        For h=1 To 5
+          LockMutex(Mutex)
+          AddElement(gloante())
+          gloante()\x=i+spritex/2
+          gloante()\y=j+spritey/2
+          gloante()\unghi=unghi+g
+          gloante()\vitezagl=10
+          gloante()\dx=gloante()\vitezagl*Cos(Radian(gloante()\unghi))
+          gloante()\dy=gloante()\vitezagl*Sin(Radian(gloante()\unghi))
+          
+          gloante()\spriteid=LoadSprite(#PB_Any,"glont.bmp")
+          RotateSprite(gloante()\spriteid,unghi,#PB_Absolute)
+          UnlockMutex(Mutex)
+          g=g+1
+        Next
+        
+
+        
+        unudown=0
+      EndIf
+    EndIf            
+  
+  
+                                          ;desenare  
+  StartDrawing(ScreenOutput())
+  Box(0,0,1920,1080,RGB(0,0,0))
+  StopDrawing()
+  DisplaySprite(sprite,i,j)
+  RotateSprite(tun,unghi,#PB_Absolute)
+  DisplaySprite(tun,i,j+luntun/2-lattun/2)
+  LockMutex(Mutex)
+  ForEach gloante() 
+    
+    DisplayTransparentSprite(gloante()\spriteid,gloante()\x,gloante()\y)
+  Next
+  ForEach rachete()
+    DisplayTransparentSprite(rachete()\spriteid,rachete()\x,rachete()\y)
+    If SpritePixelCollision(tinta,mx,my,rachete()\spriteid,rachete()\x,rachete()\y)
+      DeleteElement(rachete(),0)
+      EndIf
+  Next
+  
+  UnlockMutex(Mutex)
+  DisplaySprite(en1,500,500)
+  DisplayTransparentSprite(tinta,mx+tintax/2,my+tintay/2)
+  
+  
+ 
+  FlipBuffers()
+Until KeyboardPushed(#PB_Key_Escape)
