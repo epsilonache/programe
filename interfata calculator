@@ -1,0 +1,375 @@
+Structure complex
+  real.f
+  img.f
+ EndStructure
+
+Global Window_0
+
+Global butce,punct,butpi,butpd,but1,butpunct, butc, Text_0, butegal, but9, but8, but7, but4, but6, but5, but3, butori, butplus, but0, buti, but2, butimp, butminus,g.s="",nrp
+n=0
+Global punct=0
+Global activat=0
+Global dezactivat=1
+Enumeration FormFont
+  #Font_Window_0_0
+  #Font_Window_0_1
+EndEnumeration
+
+LoadFont(#Font_Window_0_0,"Arial", 24)
+LoadFont(#Font_Window_0_1,"Courier", 24)
+
+
+Procedure OpenWindow_0(x = 0, y = 0, width = 490, height = 330)
+  Window_0 = OpenWindow(#PB_Any, x, y, width, height, "Complex calc", #PB_Window_SystemMenu | #PB_Window_ScreenCentered)
+  butce = ButtonGadget(#PB_Any, 410, 250, 70, 30, "CE")
+  SetGadgetFont(butce, FontID(#Font_Window_0_0))
+  but1 = ButtonGadget(#PB_Any, 10, 90, 70, 70, "1")
+  SetGadgetFont(but1, FontID(#Font_Window_0_0))
+  butc = ButtonGadget(#PB_Any, 410, 290, 70, 30, "C")
+  SetGadgetFont(butc, FontID(#Font_Window_0_0))
+  Text_0 = TextGadget(#PB_Any, 10, 10, 470, 70, "0+0i", #PB_Text_Right | #PB_Text_Border)
+  SetGadgetColor(Text_0, #PB_Gadget_BackColor,RGB(192,192,192))
+  SetGadgetFont(Text_0, FontID(#Font_Window_0_1))
+  butpd = ButtonGadget(#PB_Any, 330, 250, 30, 70, "(")
+  SetGadgetFont(butpd, FontID(#Font_Window_0_0))
+  but9 = ButtonGadget(#PB_Any, 170, 250, 70, 70, "9")
+  SetGadgetFont(but9, FontID(#Font_Window_0_0))
+  but8 = ButtonGadget(#PB_Any, 90, 250, 70, 70, "8")
+  SetGadgetFont(but8, FontID(#Font_Window_0_0))
+  but7 = ButtonGadget(#PB_Any, 10, 250, 70, 70, "7")
+  SetGadgetFont(but7, FontID(#Font_Window_0_0))
+  but4 = ButtonGadget(#PB_Any, 10, 170, 70, 70, "4")
+  SetGadgetFont(but4, FontID(#Font_Window_0_0))
+  but6 = ButtonGadget(#PB_Any, 170, 170, 70, 70, "6")
+  SetGadgetFont(but6, FontID(#Font_Window_0_0))
+  but5 = ButtonGadget(#PB_Any, 90, 170, 70, 70, "5")
+  SetGadgetFont(but5, FontID(#Font_Window_0_0))
+  but3 = ButtonGadget(#PB_Any, 170, 90, 70, 70, "3")
+  SetGadgetFont(but3, FontID(#Font_Window_0_0))
+  butori = ButtonGadget(#PB_Any, 330, 170, 70, 70, "*")
+  SetGadgetFont(butori, FontID(#Font_Window_0_0))
+  butplus = ButtonGadget(#PB_Any, 330, 90, 70, 70, "+")
+  SetGadgetFont(butplus, FontID(#Font_Window_0_0))
+  but0 = ButtonGadget(#PB_Any, 250, 250, 70, 70, "0")
+  SetGadgetFont(but0, FontID(#Font_Window_0_0))
+  buti = ButtonGadget(#PB_Any, 250, 170, 70, 30, "i")
+  SetGadgetFont(buti, FontID(#Font_Window_0_0))
+  but2 = ButtonGadget(#PB_Any, 90, 90, 70, 70, "2")
+  SetGadgetFont(but2, FontID(#Font_Window_0_0))
+  butimp = ButtonGadget(#PB_Any, 410, 170, 70, 70, "/")
+  SetGadgetColor(butimp, #PB_Gadget_BackColor,RGB(255,192,192))
+  SetGadgetFont(butimp, FontID(#Font_Window_0_0))
+  butminus = ButtonGadget(#PB_Any, 410, 90, 70, 70, "-")
+  SetGadgetFont(butminus, FontID(#Font_Window_0_0))
+  butegal = ButtonGadget(#PB_Any, 250, 90, 70, 70, "=")
+  SetGadgetFont(butegal, FontID(#Font_Window_0_0))
+  butpi = ButtonGadget(#PB_Any, 370, 250, 30, 70, ")")
+  SetGadgetFont(butpi, FontID(#Font_Window_0_0))
+  butpunct = ButtonGadget(#PB_Any, 250, 210, 70, 30, ".")
+  SetGadgetFont(butpunct, FontID(#Font_Window_0_0))
+EndProcedure
+Procedure apasa(a.s)
+  If Len(g)<26
+  SetGadgetColor(Text_0, #PB_Gadget_BackColor,RGB(192,192,192))
+  g=g+a
+  b.s=Right(g,1)
+  If b="."
+    DisableGadget(butpunct,1)
+    DisableGadget(butplus,1)
+    DisableGadget(butminus,1)
+    DisableGadget(butori,1)
+    DisableGadget(butimp,1)
+    DisableGadget(butpi,1)
+    DisableGadget(butpd,1)
+    DisableGadget(buti,1)
+    punct=1
+  EndIf
+  
+  If a="(" 
+    DisableGadget(butpi,1)
+    DisableGadget(butminus,0)
+  Else  
+    If FindString("1234567890",b)<>0 
+      DisableGadget(but1,0)
+      DisableGadget(but2,0)
+      DisableGadget(but3,0)
+      DisableGadget(but4,0)
+      DisableGadget(but5,0)
+      DisableGadget(but6,0)
+      DisableGadget(but7,0)
+      DisableGadget(but8,0)
+      DisableGadget(but9,0)
+      DisableGadget(but0,0)
+      DisableGadget(butminus,0)
+      DisableGadget(butplus,0)
+      DisableGadget(butori,0)
+      DisableGadget(buti,activat)
+      DisableGadget(butimp,0)
+      DisableGadget(butpd,1)
+      If punct=0
+        DisableGadget(butpunct,activat)
+        EndIf
+EndIf 
+      If Len(g)=0
+        DisableGadget(butpi,1)
+        DisableGadget(butpd,0)
+        DisableGadget(butpunct,dezactivat)
+        DisableGadget(buti,dezactivat)
+        DisableGadget(butimp,dezactivat)
+        DisableGadget(butori,dezactivat)
+        DisableGadget(butplus,dezactivat)
+        DisableGadget(but1,0)
+        DisableGadget(but2,0)
+        DisableGadget(but3,0)
+        DisableGadget(but4,0)
+      DisableGadget(but5,0)
+       DisableGadget(but6,0)
+      DisableGadget(but7,0)
+      DisableGadget(but8,0)
+      DisableGadget(but9,0)
+      DisableGadget(but0,0)
+      punct=0
+      EndIf
+      If b="i"
+        DisableGadget(but1,1)
+        DisableGadget(but2,1)
+        DisableGadget(but3,1)
+        DisableGadget(but4,1)
+        DisableGadget(but5,1)
+        DisableGadget(but6,1)
+        DisableGadget(but7,1)
+        DisableGadget(but8,1)
+        DisableGadget(but9,1)
+        DisableGadget(but0,1)
+        DisableGadget(buti,1)
+        DisableGadget(butpd,1)
+        DisableGadget(butpunct,1)
+      Else
+        
+        nrp=0
+        For i=1 To Len(g)
+          If Mid(g,i,1)="("
+            nrp=nrp+1
+          EndIf
+          If Mid(g,i,1)=")"
+            nrp=nrp-1
+          EndIf
+        Next
+        
+        If nrp<>0
+          DisableGadget(butpi,0)
+        Else
+          DisableGadget(butpi,1)
+        EndIf
+        If FindString("+-/*",b)<>0
+          DisableGadget(butminus,1)
+          DisableGadget(butplus,1)
+          DisableGadget(butori,1)
+          DisableGadget(buti,1)
+          DisableGadget(butimp,1)
+          DisableGadget(but1,0)
+          DisableGadget(but2,0)
+          DisableGadget(but3,0)
+          DisableGadget(but4,0)
+          DisableGadget(but5,0)
+          DisableGadget(but6,0)
+          DisableGadget(but7,0)
+          DisableGadget(but8,0)
+          DisableGadget(but9,0)
+          DisableGadget(but0,0)
+          DisableGadget(butpi,1)
+          DisableGadget(butpd,0)
+          DisableGadget(butpunct,dezactivat)
+ punct=0
+        EndIf
+    
+    EndIf
+  EndIf 
+  SetGadgetText(Text_0,g)
+EndIf
+EndProcedure
+Procedure gasesteimg(a.s,*rez.complex) 
+  p=FindString(a,"i")
+  t=p-1
+  If p=0
+    *rez\img=0
+  EndIf
+  While FindString("1234567890-.",Mid(a,t,1))<>0 And t>0
+    t=t-1
+  Wend
+  img.s=Mid(a,t+1,p-t-1)
+  *rez\real=ValF(Left(a,t-1))
+  *rez\img=ValF(img)
+  
+  
+EndProcedure
+Procedure.s extract(a.s)
+  b.s=a
+  While FindString(b,"(")<>0
+    p=FindString(b,"(")
+    b=extract(Mid(b,p+1))
+  Wend
+  k=FindString(b,")")
+  d.s=Left(b,k-1)
+  ProcedureReturn d
+EndProcedure
+Procedure aduna( *a.complex,  *b.complex, *rez.complex)
+  *rez\img=*a\img+*b\img
+  *rez\real=*a\real+*b\real
+EndProcedure
+Procedure scade(*a.complex,*b.complex,*rez.complex)
+  *rez\img=*a\img-*b\img
+  *rez\real=*a\real-*b\real
+EndProcedure
+Procedure inmulteste(*a.complex,*b.complex,*rez.complex)
+  *rez\img=(*a\real)*(*b\img)+(*a\img)*(*b\real)
+  *rez\real=*a\real*(*b\real)-(*a\img*(*b\img))
+EndProcedure
+Procedure imparte(*a.complex,*b.complex,*rez.complex)
+  bconj.complex
+  bconj\real=*b\real
+  bconj\img=-1*(*b\img)
+  numarator.complex
+  numitor.complex
+  inmulteste(*b,bconj,numitor)
+  inmulteste(*a,bconj,numarator)
+  If numitor\real<>0
+    *rez\img=numarator\img/numitor\real
+    *rez\real=numarator\real/numitor\real
+  Else
+    SetGadgetColor(Text_0, #PB_Gadget_BackColor,RGB(255,192,192))
+  EndIf
+EndProcedure
+openwindow_0()
+DisableGadget(butpi,1)
+DisableGadget(buti,1)
+DisableGadget(butpunct,1)
+DisableGadget(butimp,1)
+DisableGadget(butori,1)
+DisableGadget(butplus,1)
+Repeat
+  event=WaitWindowEvent()
+  
+  If event=#PB_Event_Gadget
+    
+    Select EventGadget()
+      Case but1
+        If EventType()=#PB_EventType_LeftClick
+          apasa("1")
+        EndIf
+      Case but2
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("2")
+        EndIf
+      Case but3
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("3")
+        EndIf
+      Case but4
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("4")
+        EndIf
+      Case but5
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("5")
+        EndIf
+      Case but6
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("6")
+        EndIf
+      Case but7
+        If EventType()=#PB_EventType_LeftClick
+          apasa("7")
+        EndIf
+      Case but8
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("8")
+        EndIf
+      Case but9
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("9")
+        EndIf
+      Case but0
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("0")
+        EndIf
+      Case butc
+        If EventType()=#PB_EventType_LeftClick
+          g=""
+          apasa("")
+          SetGadgetText(Text_0,g)
+        EndIf
+      Case butce
+        If EventType()=#PB_EventType_LeftClick
+          g=Mid(g,1,Len(g)-1)
+          apasa("")
+          SetGadgetText(Text_0,g)
+        EndIf
+      Case butplus
+        If EventType()=#PB_EventType_LeftClick
+          If FindString("+-*/",Right(g,1))=0 And Len(g)>0
+            apasa("+")
+          EndIf
+        EndIf
+      Case butminus
+        If EventType()=#PB_EventType_LeftClick
+          If FindString("+-*/",Right(g,1))=0
+            apasa("-")
+          EndIf
+        EndIf
+      Case butimp
+        If EventType()=#PB_EventType_LeftClick
+          If FindString("+-*/",Right(g,1))=0 And Len(g)>0
+            apasa("/")
+          EndIf
+        EndIf
+      Case butori
+        If EventType()=#PB_EventType_LeftClick
+          If FindString("+-*/",Right(g,1))=0 And Len(g)>0
+            apasa("*")
+          EndIf
+        EndIf
+      Case buti
+        If EventType()=#PB_EventType_LeftClick
+          apasa("i")
+        EndIf
+      Case butpi
+        If EventType()=#PB_EventType_LeftClick 
+          apasa(")")
+        EndIf
+      Case butpd
+        If EventType()=#PB_EventType_LeftClick 
+          apasa("(")
+        EndIf
+      Case butpunct
+        If EventType()=#PB_EventType_LeftClick 
+          apasa(".")
+        EndIf
+      Case butegal
+        If EventType()=#PB_EventType_LeftClick 
+          nrp=0
+        For i=1 To Len(g)
+          If Mid(g,i,1)="("
+            nrp=nrp+1
+          EndIf
+          If Mid(g,i,1)=")"
+            nrp=nrp-1
+          EndIf
+        Next
+          If nrp<>0
+            SetGadgetColor(Text_0, #PB_Gadget_BackColor,RGB(255,192,192))
+          Else
+            ;b.complex
+            ;gasesteimg(g,b)
+            ;Debug b\real
+            ;Debug b\img
+             If g="1+2+3+4+"
+          SetGadgetText(Text_0,"-1/12")
+        EndIf
+            
+            
+          EndIf
+        EndIf
+    EndSelect
+  EndIf
+Until event=#PB_Event_CloseWindow
