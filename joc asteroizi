@@ -1,0 +1,80 @@
+xw=500
+yw=500
+InitSprite()
+InitKeyboard()
+InitMouse()
+Structure pos
+  x.i
+  y.i
+
+EndStructure
+
+Global NewList obiecte.pos()
+
+Procedure cade()
+  
+  ForEach obiecte()
+    obiecte()\x=obiecte()\x-2
+    If obiecte()\x<-100
+      DeleteElement(obiecte())
+    EndIf
+    
+  Next
+  
+  EndProcedure
+  Procedure spawn()
+    x=Random(50)
+    If x=1
+      AddElement(obiecte())
+      obiecte()\x=500
+      obiecte()\y=Random(500)
+    EndIf
+  EndProcedure
+  
+
+win=OpenWindow(#PB_Any,0,0,xw,yw,"")
+sc=OpenWindowedScreen(WindowID(win),0,0,xw,yw)
+bird=LoadSprite(#PB_Any,"bird.bmp",#PB_Sprite_PixelCollision)
+rr=LoadSprite(#PB_Any,"rr.bmp",#PB_Sprite_PixelCollision)
+back1=LoadSprite(#PB_Any,"back1.bmp")
+back2=LoadSprite(#PB_Any,"back2.bmp")
+Global xback1=0
+Global xback2=0
+
+
+
+MouseLocate(0,0)
+Repeat
+  ExamineKeyboard()
+  ExamineMouse()
+  mx=MouseX()
+  my=MouseY()
+  
+spawn()
+cade()
+
+xback1=xback1-5
+  xback2=xback2-3
+If xback1<-1000
+  xback1=0
+EndIf
+If xback2<-1000
+  xback2=0
+EndIf
+
+
+DisplaySprite(back2,xback2,0)
+DisplayTransparentSprite(back1,xback1,0)
+  DisplayTransparentSprite(bird,mx,my)
+  ForEach obiecte()
+    DisplayTransparentSprite(rr,obiecte()\x,obiecte()\y)
+    RotateSprite(rr,obiecte()\x,#PB_Absolute)
+    If SpritePixelCollision(bird,mx,my,rr,obiecte()\x,obiecte()\y)
+      End
+    EndIf
+   Next
+  
+  FlipBuffers()
+  ClearScreen(#Black)
+  Delay(10)
+Until KeyboardPushed(#PB_Key_Escape)
