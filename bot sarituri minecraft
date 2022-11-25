@@ -1,0 +1,81 @@
+Delay(1500)
+a=4
+  If a=1 ;saritura 4
+  ;mouse_event_(#MOUSEEVENTF_LEFTDOWN,0,0,0,0)
+  ;mouse_event_(#MOUSEEVENTF_LEFTUP,0,0,0,0)
+  keybd_event_(#VK_CONTROL,0,0,0)
+  keybd_event_(#VK_W,0,0,0)
+  Delay(170)
+  
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(100)
+  
+  Delay(2000)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  
+  
+
+  keybd_event_(#VK_W,0,#KEYEVENTF_KEYUP,0)
+  keybd_event_(#VK_CONTROL,0,#KEYEVENTF_KEYUP,0)
+EndIf
+If a=2 ;saritura 3
+  keybd_event_(#VK_CONTROL,0,0,0)
+  keybd_event_(#VK_W,0,0,0)
+  Delay(350)
+  
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(50)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  
+  Delay(400)
+  keybd_event_(#VK_W,0,#KEYEVENTF_KEYUP,0)
+  keybd_event_(#VK_CONTROL,0,#KEYEVENTF_KEYUP,0)
+EndIf
+If a=3 ;cub deasupra
+  keybd_event_(#VK_CONTROL,0,0,0)
+  keybd_event_(#VK_W,0,0,0)
+  Delay(250)
+  
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(50)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  
+  Delay(140)
+  keybd_event_(#VK_W,0,#KEYEVENTF_KEYUP,0)
+  keybd_event_(#VK_CONTROL,0,#KEYEVENTF_KEYUP,0)
+EndIf 
+If a=4 ;3 1 1
+  keybd_event_(#VK_CONTROL,0,0,0)
+  keybd_event_(#VK_W,0,0,0)
+  Delay(390)
+  
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(50)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  
+  Delay(260)
+  keybd_event_(#VK_W,0,#KEYEVENTF_KEYUP,0)
+  keybd_event_(#VK_CONTROL,0,#KEYEVENTF_KEYUP,0)
+EndIf
+If a=5
+  keybd_event_(#VK_CONTROL,0,0,0)
+  keybd_event_(#VK_W,0,0,0)
+  Delay(690)
+  
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(40)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  Delay(310)
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(40)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  Delay(310)
+  keybd_event_(#VK_SPACE,0,0,0)
+  Delay(40)
+  keybd_event_(#VK_SPACE,0,#KEYEVENTF_KEYUP,0)
+  
+  
+  Delay(400)
+  keybd_event_(#VK_W,0,#KEYEVENTF_KEYUP,0)
+  keybd_event_(#VK_CONTROL,0,#KEYEVENTF_KEYUP,0)
+EndIf
