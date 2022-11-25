@@ -1,0 +1,171 @@
+;1 e dreapta 0 e stanga
+Global sir.s="1"
+xec=700
+yec=500
+Global orientatie.s=""
+Structure punct
+  x.i
+  y.i
+EndStructure
+Global coord.punct
+coord\x=xec/2
+coord\y=yec/2
+Global marime=1
+Global coordnou.punct
+coordnou\x=xec/2
+coordnou\y=yec/2
+Procedure.s invers(x.s)
+  unu.s
+  rez.s
+  interm.s=""
+  For i=1 To Len(x)
+    unu=unu+"1"
+  Next
+  
+  For i=1 To Len(x)
+    curentunu=Val(Mid(unu,i,1))
+    curentx=Val(Mid(x,i,1))
+    If curentunu And curentx
+      interm=interm+"0"
+    Else
+      interm=interm+"1"
+    EndIf
+    
+  Next
+  
+  For i=0 To Len(interm)-1
+    rez=rez+Mid(interm,Len(interm)-i,1)
+  Next
+  
+  ProcedureReturn rez
+EndProcedure
+
+Procedure.s nextgen(x.s)
+  x=x+"1"+invers(x)
+  ProcedureReturn x
+EndProcedure
+Procedure liniestanga()
+  If orientatie=""
+      orientatie="sus"
+      coordnou\x=coord\x
+      coordnou\y=coord\y-marime
+      LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+      coord\x=coordnou\x
+      coord\y=coordnou\y
+      
+  ElseIf orientatie="sus"
+    orientatie="stanga"
+    coordnou\x=coord\x-marime
+    coordnou\y=coord\y
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+        coord\y=coordnou\y
+
+  ElseIf orientatie="jos"
+    orientatie="dreapta"
+    coordnou\x=coord\x+marime
+    coordnou\y=coord\y
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+        coord\y=coordnou\y
+
+  ElseIf orientatie="stanga"
+    orientatie="jos"
+    coordnou\x=coord\x
+    coordnou\y=coord\y+marime
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+    coord\y=coordnou\y
+  ElseIf orientatie="dreapta"
+    orientatie="sus"
+    coordnou\x=coord\x
+    coordnou\y=coord\y-marime
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+    coord\y=coordnou\y
+  EndIf
+  
+EndProcedure
+
+Procedure liniedreapta()
+  If orientatie=""
+      orientatie="sus"
+      coordnou\x=coord\x
+      coordnou\y=coord\y-marime
+      LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+      coord\x=coordnou\x
+      coord\y=coordnou\y
+      
+    ElseIf orientatie="sus"
+      orientatie="dreapta"
+      coordnou\y=coord\y
+    coordnou\x=coord\x+marime
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+        coord\y=coordnou\y
+
+  ElseIf orientatie="jos"
+    orientatie="stanga"
+    coordnou\y=coord\y
+    coordnou\x=coord\x-marime
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+        coord\y=coordnou\y
+
+  ElseIf orientatie="stanga"
+    orientatie="sus"
+    coordnou\x=coord\x
+    coordnou\y=coord\y-marime
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+    coord\y=coordnou\y
+    
+  ElseIf orientatie="dreapta"
+    orientatie="jos"
+    coordnou\x=coord\x
+    coordnou\y=coord\y+marime
+    LineXY(coord\x,coord\y,coordnou\x,coordnou\y,#Yellow)
+    coord\x=coordnou\x
+    coord\y=coordnou\y
+  EndIf
+  EndProcedure
+Procedure deseneaza()
+    liniedreapta()
+    For i=1 To Len(sir)
+      If Val(Mid(sir,i,1))=0
+        liniestanga()
+      Else
+        liniedreapta()
+      EndIf
+    Next
+    
+    EndProcedure
+  p=0
+  ecran=OpenWindow(#PB_Any,100,100,xec,yec,"")
+  imagine=CreateImage(#PB_Any,xec,yec)
+  imaginegad=ImageGadget(#PB_Any,0,0,xec,yec,ImageID(imagine))
+  StartDrawing(ImageOutput(imagine))
+  deseneaza()
+  StopDrawing()
+  SetGadgetState(imaginegad,ImageID(imagine))
+  Repeat
+    event=WaitWindowEvent()
+    If EventGadget()=imaginegad
+      If EventType()=#PB_EventType_LeftClick
+        sir=nextgen(sir)
+        orientatie=""
+        coord\x=xec/2
+        coord\y=yec/2
+        p=1
+      EndIf
+    EndIf
+    If p=1
+      StartDrawing(ImageOutput(imagine))
+      Box(0,0,xec,yec,#Black)
+  deseneaza()
+  StopDrawing()
+  SetGadgetState(imaginegad,ImageID(imagine))
+  p=0
+EndIf
+
+    Until event=#PB_Event_CloseWindow
