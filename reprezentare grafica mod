@@ -1,0 +1,68 @@
+
+ExamineDesktops()
+xecran=DesktopWidth(0)-300
+yecran=DesktopHeight(0)-DesktopHeight(0)/4
+ecran=OpenWindow(#PB_Any,20,20,xecran,yecran,"")
+imagine=CreateImage(#PB_Any,xecran-xecran/5,yecran)
+imaginegad=ImageGadget(#PB_Any,xecran/5,0,xecran-xecran/3,yecran,ImageID(imagine),#PB_Image_Border)
+butonplus=ButtonGadget(#PB_Any,150,10,40,40,"+")
+butonminus=ButtonGadget(#PB_Any,110,10,40,40,"-")
+butonplus1=ButtonGadget(#PB_Any,150,100,40,40,"+")
+butonminus1=ButtonGadget(#PB_Any,110,100,40,40,"-")
+text=TextGadget(#PB_Any,60,60,200,40,"sal")
+textsalt=TextGadget(#PB_Any,60,200,200,40,"sal")
+nrp=1
+ximagine=xecran-xecran/5
+salt=1
+Structure punct
+  x.f
+  y.f
+EndStructure
+Dim  puncte.punct(361)
+
+Repeat 
+  event=WaitWindowEvent()
+  If event=#PB_Event_Gadget
+    Select EventGadget()
+      Case butonminus
+        If EventType()=#PB_EventType_LeftClick
+          If nrp>1
+            nrp=nrp-1
+          EndIf
+          EndIf
+      Case butonplus
+        If EventType()=#PB_EventType_LeftClick
+          nrp=nrp+1
+        EndIf
+        
+      Case butonplus1
+        If  EventType()=#PB_EventType_LeftClick And salt<nrp
+          salt=salt+1
+        EndIf
+      Case butonminus1
+        If EventType()=#PB_EventType_LeftClick And salt>1
+          salt=salt-1
+          EndIf
+    EndSelect
+  EndIf
+    i.f=0
+    pas.f=360/nrp
+   
+  For j=0 To nrp
+    puncte(j)\x=Cos(Radian(i))*400+ximagine/2
+    puncte(j)\y=Sin(Radian(i))*400+yecran/2
+    i=i+pas
+    Next
+  StartDrawing(ImageOutput(imagine))
+  Box(0,0,ximagine,yecran,#Black)
+  StopDrawing()
+  For h=0 To nrp
+    StartDrawing(ImageOutput(imagine))
+    Box(puncte(h)\x,puncte(h)\y,5,5,#Red)
+    LineXY(puncte(h)\x,puncte(h)\y,puncte(Int(Mod(h*salt,nrp)))\x,puncte(Int(Mod(h*salt,nrp)))\y,#White)
+    StopDrawing()
+    Next
+  SetGadgetText(text,"numar puncte="+Str(nrp))
+  SetGadgetText(textsalt,"marime salt="+Str(salt))
+  SetGadgetState(imaginegad,ImageID(imagine))
+  Until event=#PB_Event_CloseWindow
