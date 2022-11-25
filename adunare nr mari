@@ -1,0 +1,46 @@
+ Procedure.s aduna1(n1.s,n2.s)
+    pc=0
+    s1.s=n1
+    s2.s=n2
+    dif_lungime.i=Len(s1)-Len(s2)
+    If dif_lungime>0
+      
+   ;   PrintN(Str(dif_lungime))
+      For j=1 To dif_lungime
+        s2="0"+s2
+      Next
+    Else
+      If dif_lungime<0
+        dif_lungime=-1*dif_lungime
+        For j=1 To dif_lungime
+          s1="0"+s1
+        Next
+      EndIf
+    EndIf
+ ;   PrintN(s1)
+ ;   PrintN(s2)
+    
+    For i=Len(s1) To 1 Step -1
+      us1.b=Val(Mid(s1,i,1))
+      us2.b=Val(Mid(s2,i,1))
+      uc=Mod((us1+us2+pc),10)
+      pc=(us1+us2+pc)/10
+      sm.s=Str(uc)+sm
+    Next
+    If pc>0
+      sm.s=Str(pc)+sm 
+    EndIf
+    
+ProcedureReturn sm     
+EndProcedure
+   OpenConsole("mult")
+  Print("n1=")
+  n1.s=Input()
+  Print("n2=")
+  n2.s=Input()
+  interm.b=0
+  s.s=""
+  x.s=""
+  PrintN(aduna1(n1,n2))
+
+  Input()
