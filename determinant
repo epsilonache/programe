@@ -1,0 +1,30 @@
+import numpy as np
+a=np.array([[1, 3, -1, 2],
+            [4, 11, -4, 8],
+            [3, 53, -2, 4],
+            [3, 3, -5, 11]])
+
+x=0
+def calcdet2x2(det):
+    if np.size(det,1)==np.size(det,0):
+        return det[0][0]*det[1][1]-det[0][1]*det[1][0]
+
+def calcdet(d):
+    vector=[]
+    x=0
+    if np.size(d,0)>2:
+        for i in range(0,np.size(d,0)):
+            temp=d
+            temp=np.delete(temp,0,0)#sterge prima lin
+            temp=np.delete(temp,i,1)#sterge i coloana
+            vector.append(temp)# insira det partiali in vector
+        for i in range(0,np.size(d,0)):#se calc det partiali prin recurs
+            p=calcdet(vector[i])
+            x += pow(-1, i) *d[0][i]*p
+        return x
+    else:
+        return calcdet2x2(d)
+print (calcdet(a))
+print (np.linalg.det(a))
+
+
