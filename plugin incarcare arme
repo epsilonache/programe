@@ -1,0 +1,117 @@
+package com.teurac;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+public class Cooldown extends BukkitRunnable {
+
+    private final JavaPlugin plugin;
+    ItemStack item;
+    PlayerInventory inv;
+    ItemStack glontglock=new ItemStack(Material.RED_DYE,1);
+    public Cooldown(JavaPlugin plugin,ItemStack item,PlayerInventory x) {
+        this.plugin = plugin;
+        this.item=item;
+        this.inv=x;
+        
+    }
+
+	public void run() {
+        ItemMeta meta = item.getItemMeta();
+		List<String> lore = meta.getLore();
+		if(item.getType()==Material.PAPER) {
+			int slot= inv.getHeldItemSlot();
+			ItemStack band=new ItemStack(Material.PAPER,inv.getItem(slot).getAmount()-1);
+			ItemMeta meta1 = band.getItemMeta();
+			meta.setDisplayName("Bandage");
+			List<String> lore1 = new ArrayList<String>();
+			lore1.add("Restores 2 hearts");
+			meta1.setLore(lore1);
+			band.setItemMeta(meta1);
+			inv.setItem(slot, band);
+			if(inv.getHolder().getHealth()>=16) {
+				inv.getHolder().setHealth(20);
+			}else {
+				inv.getHolder().setHealth(inv.getHolder().getHealth()+4);
+
+			}
+			this.cancel();
+			
+		}
+		
+		
+        if(item.getType()==Material.IRON_INGOT) {
+        	int nrg = Integer.parseInt(lore.get(0));
+    		int nrgmax = Integer.parseInt(lore.get(1));
+    		Bukkit.getLogger().info(lore.get(0));
+        	if(meta.getDisplayName().indexOf("AWP", 0)>=0){
+        		if(inv.contains(Material.BLUE_DYE) && nrg<nrgmax) {
+            		ItemStack clip = new ItemStack(Material.BLUE_DYE, inv.getItem(inv.first(Material.BLUE_DYE)).getAmount() - 1);
+            		ItemMeta metaclip = clip.getItemMeta();
+            		metaclip.setDisplayName(".50BMG Rounds");
+            		clip.setItemMeta(metaclip);
+            		inv.setItem(inv.first(Material.BLUE_DYE), clip);
+            		lore.set(0, String.valueOf(nrg+1));
+            		meta.setDisplayName(lore.get(0)+" / "+lore.get(1)+" - AWP Magazine");
+            		meta.setLore(lore);
+            		item.setItemMeta(meta);
+            	}else {
+            		lore.remove("Reloading");
+            		meta.setLore(lore);
+            		item.setItemMeta(meta);
+            		this.cancel();
+            	}
+        	}
+        	if(meta.getDisplayName().indexOf("Minigun", 0)>=0){
+        		if(inv.contains(Material.PINK_DYE) && nrg<nrgmax) {
+            		ItemStack clip = new ItemStack(Material.PINK_DYE, inv.getItem(inv.first(Material.PINK_DYE)).getAmount() - 1);
+            		ItemMeta metaclip = clip.getItemMeta();
+            		metaclip.setDisplayName("7.26mm Rounds");
+            		clip.setItemMeta(metaclip);
+            		inv.setItem(inv.first(Material.PINK_DYE), clip);
+            		lore.set(0, String.valueOf(nrg+1));
+            		meta.setDisplayName(lore.get(0)+" / "+lore.get(1)+" - Minigun Magazine");
+            		meta.setLore(lore);
+            		item.setItemMeta(meta);
+            	}else {
+            		lore.remove("Reloading");
+            		meta.setLore(lore);
+            		item.setItemMeta(meta);
+            		this.cancel();
+            	}
+        	}
+        	if(meta.getDisplayName().indexOf("Glock",0)>=0) {
+        		if(inv.contains(Material.RED_DYE) && nrg<nrgmax) {
+            		ItemStack clip = new ItemStack(Material.RED_DYE, inv.getItem(inv.first(Material.RED_DYE)).getAmount() - 1);
+            		ItemMeta metaclip = clip.getItemMeta();
+            		metaclip.setDisplayName("9mm Rounds");
+            		clip.setItemMeta(metaclip);
+            		inv.setItem(inv.first(Material.RED_DYE), clip);
+            		lore.set(0, String.valueOf(nrg+1));
+            		meta.setDisplayName(lore.get(0)+" / "+lore.get(1)+" - Glock 18 Magazine");
+            		meta.setLore(lore);
+            		item.setItemMeta(meta);
+            	}else {
+            		lore.remove("Reloading");
+            		meta.setLore(lore);
+            		item.setItemMeta(meta);
+            		this.cancel();
+            	}
+        	}
+        	
+        	
+        	
+        	
+        }
+    }
+}
