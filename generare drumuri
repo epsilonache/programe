@@ -1,0 +1,490 @@
+package citygen;
+
+import java.io.File;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
+
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.transform.AffineTransform;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.session.PasteBuilder;
+
+
+class GridBox {
+	int x=0;
+	int y=0;
+	int z=0;
+	int xoff=0;
+	int yoff=0;
+	int zoff=0;
+	int rotation=0;
+	GridBox northnbor;
+	GridBox southnbor;
+	GridBox eastnbor;
+	GridBox westnbor;
+	GridBox upnbor;
+	GridBox downnbor;
+	boolean northbool=false;
+	boolean southbool=false;
+	boolean eastbool=false;
+	boolean westbool=false;
+	boolean upbool=false;
+	boolean downbool=false;
+	int nr=-1;
+	int negnr=0;
+	String type="notset";
+	ArrayList<String> postype=new ArrayList<String>();
+	
+	ArrayList<GridBox> connect=new ArrayList<>();
+	public GridBox(int x,int y,int z) {
+		this.x=x;
+		this.y=y;
+		this.z=z;
+		
+	    
+	    
+	}
+	public void setType(String type) {
+		this.type=type;
+		for( Integer x : CityGen.map.keySet()) {
+			if(CityGen.map.get(x).equals(this.type)) {
+				this.nr=x;
+			}
+		}
+		
+		if(getBit(this.nr,0)==1) {//N
+			this.northbool=true;
+		}else {
+			this.northbool=false;
+		}
+		if(getBit(this.nr,1)==1) {//S
+			this.northbool=true;
+		}else {
+			this.northbool=false;
+		}
+		if(getBit(this.nr,2)==1) {//E
+			this.northbool=true;
+		}else {
+			this.northbool=false;
+		}
+		if(getBit(this.nr,3)==1) {//W
+			this.northbool=true;
+		}else {
+			this.northbool=false;
+		}
+		if(getBit(this.nr,4)==1) {//U
+			this.northbool=true;
+		}else {
+			this.northbool=false;
+		}
+		if(getBit(this.nr,5)==1) {//D
+			this.northbool=true;
+		}else {
+			this.northbool=false;
+		}
+		//de facut update bool cand se schimba typeul
+	}
+	public static int rotateNr(int boxnr,int decateori) {
+		
+		int unu=getBit(boxnr, 5);//down
+		int doi=getBit(boxnr, 4);//up
+		int trei=getBit(boxnr, 3);//west
+		int patru=getBit(boxnr, 2);//east
+		int cinci=getBit(boxnr, 1);//south
+		int sase=boxnr & 1;//north
+		int tempnr= unu*32 + doi*16 + sase*8 + cinci*4 + trei*2 + patru;
+		//Bukkit.broadcastMessage(String.valueOf(tempnr));
+		if(decateori>1) {
+			return rotateNr(tempnr,decateori-1);
+		}
+		if(decateori==1) {
+			
+			return tempnr;
+		}
+		return -1;
+	}
+	public static int getBit(int n, int k) {
+	    return (n >> k) & 1;
+	}
+	public int boolstoint() {
+		return 1*(this.northbool ? 1:0)+ 2*(this.southbool ? 1:0)+ 4*(this.eastbool ? 1:0)
+				+8* (this.westbool ? 1:0) + 16*(this.upbool ? 1:0)+32*(this.downbool ? 1:0);
+	}
+	
+	public static void eval(int size) {
+		boolean saschimbatceva=true;
+		GridBox randbox = null;
+		ArrayList<GridBox> randboxarr=new ArrayList<>();
+		int x = 0;
+		int y =0;
+		int z =0;
+		
+		while(saschimbatceva) {
+			//Bukkit.broadcastMessage("co= "+String.valueOf(co));
+			saschimbatceva=false;
+			
+			for(GridBox box: CityGen.grid) {
+				box.postype.clear();
+				int celmaimicnrdepos = 100;
+				box.negnr=0;
+				if(box.x==0) {
+					box.negnr=box.negnr+8;
+				}if(box.x==size-1) {
+					box.negnr=box.negnr+4;
+				}if(box.z==0) {
+					box.negnr=box.negnr+1;
+				}if(box.z==size-1) {
+					box.negnr=box.negnr+2;
+				}
+				if(box.type.equals("notset")) {
+				box.getNearbyBoxes(box);
+					if(box.northnbor!=null) {
+						String ceva = box.northnbor.type;
+						if(!ceva.equals("notset")) {
+							int temp = 2 & box.northnbor.nr;
+							if(temp==0) {//daca vecinul de N nu are conexiune la S
+								box.negnr=box.negnr+1;
+							}
+							if(temp >= 2) {//daca vecinul de N are conexiune la S sau oriunde altundeva
+								box.northbool=true;
+							}else {
+								box.northbool=false;
+							}		
+						}
+					}
+					if(box.westnbor!=null) {
+						String ceva = box.westnbor.type;
+						if(!ceva.equals("notset")) {
+							int temp = 4 & box.westnbor.nr;
+							if(temp==0) {
+								box.negnr=box.negnr+8;
+							}
+							if(temp >= 4) {
+								box.westbool=true;
+							}else {
+								box.westbool=false;
+							}
+					}
+						}
+					if(box.southnbor!=null) {
+						String ceva = box.southnbor.type;
+						if(!ceva.equals("notset")) {
+							int temp = 1 & box.southnbor.nr;
+							if(temp==0) {
+								box.negnr=box.negnr+2;
+							}
+							if(temp >= 1) {
+								box.southbool=true;
+							}else {
+								box.southbool=false;
+							}
+					}
+						}
+					if(box.eastnbor!=null) {
+						String ceva = box.eastnbor.type;
+						if(!ceva.equals("notset")) {
+							int temp = 8 & box.eastnbor.nr;
+							if(temp==0) {
+								box.negnr=box.negnr+4;
+							}
+							if(temp >= 8) {
+								box.eastbool=true;
+							}else {
+								box.eastbool=false;
+							}
+					}
+						}
+					
+					box.nr=box.boolstoint();
+					for( Integer key : CityGen.map.keySet()) {//adaugat tipuri in postype
+						int test = box.nr & key;
+						int test1= box.negnr & key;
+						if(test>=box.nr && test1==0) {
+							if(! box.postype.contains(CityGen.map.get(key))) {
+								box.postype.add(CityGen.map.get(key));
+							}else {
+								
+							}
+						}
+					}
+					if(box.postype.size()==celmaimicnrdepos && box.postype.size()!=0) {
+						randboxarr.add(box);
+					}
+					if(box.postype.size()<celmaimicnrdepos && box.postype.size()!=0) {
+						randboxarr.clear();
+						randboxarr.add(box);
+						celmaimicnrdepos=box.postype.size();
+						x=box.x;
+						y=box.y;
+						z=box.z;
+						
+					}
+					if(box.postype.size()==1) {
+						box.setType(box.postype.get(0));
+						saschimbatceva=true;
+						
+					}
+				}
+				}
+			//GridBox.getBox(x, y, z);
+			if(randboxarr.size()>0) {
+				randbox=randboxarr.get((int) (Math.random()*randboxarr.size()));
+				
+			if(randbox!=null) {
+				Bukkit.broadcastMessage("randbox coord "+Integer.toString(randbox.x)+","+Integer.toString(randbox.z));
+
+				Bukkit.broadcastMessage(String.valueOf(randbox.postype.size()));
+				//if (randbox.postype.size()==0) {//if postype size =0  adica gol
+				//	randbox.type="gol";//de reparat
+				//	saschimbatceva=true;
+				//}
+				if( randbox.postype.size()>1) {
+					for(String j : randbox.postype) {
+						Bukkit.broadcastMessage(j);
+					}
+					
+					randbox.setType(randbox.postype.get((int)(Math.random()*randbox.postype.size())));
+					Bukkit.broadcastMessage(randbox.type+" final");
+					saschimbatceva=true;
+				}
+			}else {
+				Bukkit.broadcastMessage("randbox null");
+			}}
+			
+		
+		}
+	}
+	
+
+	public static GridBox getBox(int x,int y, int z) {
+		for(GridBox b : CityGen.grid) {
+			if(b.x==x && b.y==y && b.z==z) {
+				return b;
+			}
+		}
+		return null;
+	}
+	public void getNearbyBoxes(GridBox box){
+		GridBox tempbox = getBox(box.x-1, box.y, box.z);
+		
+		if(tempbox!=null) {
+			box.westnbor=tempbox;
+		}
+		tempbox=getBox(box.x+1, box.y, box.z);
+		if(tempbox!=null) {
+			box.eastnbor=tempbox;
+		}
+		tempbox=getBox(box.x, box.y-1, box.z);
+		if(tempbox!=null) {
+			box.downnbor=tempbox;
+		}
+		tempbox=getBox(box.x, box.y+1, box.z);
+		if(tempbox!=null) {
+			box.upnbor=tempbox;
+		}
+		tempbox=getBox(box.x, box.y, box.z-1);
+		if(tempbox!=null) {
+			box.northnbor=tempbox;
+		}
+		tempbox=getBox(box.x, box.y, box.z+1);
+		if(tempbox!=null) {
+			box.southnbor=tempbox;
+		}
+		
+		
+		
+	}
+	public void paste(World world,Location location, int deg) {
+		if(type=="notset") {
+			return ;
+		}
+		
+		String type2 = type;
+		if(type.endsWith("1")) {
+			deg=90;
+			type2=type.substring(0, type.length()-1);
+		}
+		if(type.endsWith("2")) {
+			deg=180;
+			type2=type.substring(0, type.length()-1);
+		}
+		if(type.endsWith("3")) {
+			deg=270;
+			type2=type.substring(0, type.length()-1);
+		}
+		
+    	File file = new File("./plugins/WorldEdit/schematics/"+type2+".schem");
+    	
+    	Clipboard clipboard = null;
+    	ClipboardFormat format = ClipboardFormats.findByFile(file);
+		try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+		   clipboard = reader.read();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(world), -1)) {
+		     ClipboardHolder holder = new ClipboardHolder(clipboard);
+		     holder.setTransform(new AffineTransform().rotateY(deg));
+		     PasteBuilder paste = holder.createPaste(editSession);
+		     paste.to(BlockVector3.at(location.getX(),location.getY(),location.getZ()));
+		     paste.ignoreAirBlocks(false);     
+		     Operation operation = paste.build();
+		     Operations.complete(operation);
+			
+
+		} catch (WorldEditException e) {
+			e.printStackTrace();
+		}
+    }
+	public void paste(String file1,World world,Location location, int deg) {
+	    	File file = new File("./plugins/WorldEdit/schematics/"+file1+".schem");
+	    	Clipboard clipboard = null;
+	    	ClipboardFormat format = ClipboardFormats.findByFile(file);
+			try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+			   clipboard = reader.read();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(world), -1)) {
+			     ClipboardHolder holder = new ClipboardHolder(clipboard);
+			     holder.setTransform(new AffineTransform().rotateY(deg));
+			     PasteBuilder paste = holder.createPaste(editSession);
+			     paste.to(BlockVector3.at(location.getX()+xoff,location.getY()+yoff,location.getZ()+zoff));
+			     paste.ignoreAirBlocks(false);     
+			     Operation operation = paste.build();
+			     Operations.complete(operation);
+					
+
+			} catch (WorldEditException e) {
+				e.printStackTrace();
+			}
+	    }
+}
+
+public class CityGen extends JavaPlugin {
+    JavaPlugin plugin=this;
+    World world= Bukkit.getWorld("world");
+    static ArrayList<GridBox> grid=new ArrayList<>();
+    static HashMap<Integer, String> map = new HashMap<Integer, String>();
+    
+    @Override
+    public void onEnable() {
+        getServer().getPluginManager().registerEvents(new listener(), this);
+        map.put(10,"l");//sud vest 
+	    map.put(15,"plus");//15
+	    map.put(3,"linie");
+	    map.put(0,"gol");
+        map.put(11,"t");
+        map.put(1,"dop");
+        Set<Integer> arr = new HashSet<Integer>();
+		for( Integer f : map.keySet()) {
+        	arr.add(f);
+        }
+        
+        for( Integer x : arr) {
+        	for(int y=1;y<4;y++) {
+        		int nounr=GridBox.rotateNr(x, y);
+        		if(nounr!=x) {
+        			
+        			String luatul = map.get(x);
+        			map.put(nounr,luatul+Integer.toString(y));
+        		}
+        		
+        	}
+        }
+        
+    }
+    public final class listener implements Listener {
+    	
+    }
+	
+    @Override
+    public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){
+    	if(cmd.getName().equalsIgnoreCase("test")) {
+    		Player p=(Player) sender;
+    		RayTraceResult raytrace = p.rayTraceBlocks(100);
+    		Block block = raytrace.getHitBlock();
+    		//Bukkit.broadcastMessage(String.valueOf(block.getLocation().getBlockX())+" "+String.valueOf(block.getLocation().getBlockZ()));
+    		for(GridBox test : grid) {
+    			if (block.getLocation().getBlockX()==test.xoff &&
+    					block.getLocation().getBlockX()==test.xoff &&
+    					block.getLocation().getBlockZ()==test.zoff &&
+    					block.getLocation().getBlockZ()==test.zoff) {
+    				Bukkit.broadcastMessage(String.valueOf(test.nr)+" "+test.type+" "+String.valueOf(test.negnr));
+    			}
+    		}
+    		return true;
+    	}
+    	if(cmd.getName().equalsIgnoreCase("boom")) {
+    		Player p=(Player) sender;
+    		Location loc = p.getLocation();
+    		int size = Integer.valueOf(args[0]);
+    		grid.removeAll(grid);
+    		for(int i=0;i<size;i++) {
+    			for(int j=0;j<size;j++) {
+    				GridBox box = new GridBox(i,1,j);
+    				
+    				grid.add(box);
+        		}
+    		}
+    		GridBox.getBox(1,1,1).setType("plus");
+    		GridBox.getBox(2,1,1).setType("l");
+    		GridBox.eval(size);//logica
+    		
+    		for(GridBox box : grid) {// paste
+    			box.xoff=loc.getBlockX()+box.x*5;
+    			box.zoff=loc.getBlockZ()+box.z*5;
+    			box.paste(world, loc.clone().add(box.x*5,0,box.z*5), 0);
+    			//Bukkit.broadcastMessage(Integer.toString(box.x)+","+Integer.toString(box.z));
+    			//Bukkit.broadcastMessage("nr "+Integer.toString(box.nr)+",negnr "+Integer.toString(box.negnr));
+    			
+    		}
+    		return true;
+    	}
+    	return false;
+    }
+    
+}
