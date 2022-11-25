@@ -1,0 +1,51 @@
+import time
+
+import numpy as np
+from PyQt5 import QtGui
+
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QPixmap, QImage
+
+from PyQt5.QtCore import Qt
+import sys
+
+
+imgwidth = 500
+imgheight = 500
+points = 100
+stepsize = int(max(imgwidth, imgheight) / points)
+arr = []
+counter = 0
+smoothness=5
+linesize=1
+image = QImage('layer.png')
+image=image.scaled(500,500)
+result=QImage("result.png")
+result=result.scaled(500,500)
+    # generez array cu vectori
+for i in range(stepsize, max(imgwidth, imgheight), stepsize):
+     for j in range(stepsize, max(imgwidth,imgheight), stepsize):
+        arr.append([i, j, 2*np.pi / 360 * 90])
+
+
+painter = QPainter(result)
+painter.setRenderHint(painter.Antialiasing)
+painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
+painter.drawRect(0, 0, 500, 500)
+for nrrep in range(50):
+    arr1 = []
+    for f in arr:
+        hsv = QColor.fromHsv(250, 250, 255, 2)
+        painter.setPen(QPen(hsv, 5, Qt.SolidLine))
+        pix = image.pixelColor(f[0], f[1])
+        exp=(-90+(pix.red()/255+pix.green()/255+pix.blue()/255)*180/3)
+        f[2] = f[2]+(exp*2*np.pi/360)/smoothness
+
+        x1 = f[0] + np.cos(f[2]) * linesize
+        y1 = f[1] + np.sin(f[2]) * linesize
+
+        painter.drawLine(f[0], f[1], x1, y1)
+        arr1.append([x1, y1, f[2]])
+    arr = arr1
+painter.end()
+result.save("result.png")
