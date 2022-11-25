@@ -1,0 +1,59 @@
+Delay(1000)
+mg=CreateImage(#PB_Any,1920,1080)
+hWndDesktop = GetDesktopWindow_()
+wdc=GetDC_(hWndDesktop)
+Enumeration
+  #stanga=0
+  #dreapta=1
+EndEnumeration
+partea=#dreapta
+NewList lista()
+dc=StartDrawing(ImageOutput(mg))
+i=0
+cul=RGB(161,116,56)
+cul=3699873
+Repeat
+  
+  Delay(250)
+  i=i+1
+  BitBlt_(dc,0,0,1920,1080,wdc,0,0,#SRCCOPY)
+  
+ s=GetPixel_(dc,917,388)
+ d=GetPixel_(dc,995,388)
+ Debug Red(s)
+ Debug Red(d)
+  If Abs(Red(s)-Red(cul))<5 
+  partea=#dreapta
+  EndIf
+  If Abs(Red(d)-Red(cul))<5 
+  partea=#stanga
+
+  EndIf
+ If partea=#stanga
+  keybd_event_(#VK_LEFT,0,0,0)
+  keybd_event_(#VK_LEFT,0,0,#KEYEVENTF_KEYUP)
+  Delay(100)
+    keybd_event_(#VK_LEFT,0,0,0)
+    keybd_event_(#VK_LEFT,0,0,#KEYEVENTF_KEYUP)
+    Else
+   keybd_event_(#VK_RIGHT,0,0,0)
+    keybd_event_(#VK_RIGHT,0,0,#KEYEVENTF_KEYUP)
+    Delay(100)
+    keybd_event_(#VK_RIGHT,0,0,0)
+    keybd_event_(#VK_RIGHT,0,0,#KEYEVENTF_KEYUP)
+  EndIf
+
+
+Until i=420
+
+StopDrawing()
+
+
+
+;For i=0 To 10000
+;  Delay(10)
+ ; mouse_event_(#MOUSEEVENTF_LEFTDOWN,0,0,0,0)
+ ; mouse_event_(#MOUSEEVENTF_LEFTUP,0,0,0,0)
+;593 393st
+ ;723 393 dr
+;Next
