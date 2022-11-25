@@ -1,0 +1,41 @@
+InitSprite()
+InitKeyboard()
+InitMouse()
+InitSound()
+
+xecran=1000
+yecran=500
+
+ecran=OpenWindow(#PB_Any,100,100,xecran,yecran,"")
+ecranscreen=OpenWindowedScreen(WindowID(ecran),0,0,xecran,yecran)
+timptrecut = 0
+rand=Random(10000,2000)
+timp=ElapsedMilliseconds()
+LoadFont(0,"Arial",100)
+
+Repeat
+  event=WaitWindowEvent()
+  ExamineMouse()
+  ExamineKeyboard()
+  timptrecut=ElapsedMilliseconds()-timp
+
+  If timptrecut > rand
+    ClearScreen(#Red)
+    FlipBuffers()
+    If MouseButton(#PB_MouseButton_Left)=1
+      ClearScreen(#White)
+      
+      StartDrawing(ScreenOutput())
+      DrawingFont(FontID(0))
+      DrawText(100,100,Str(timptrecut-rand )+" milisecunde",#White,#Black)
+      StopDrawing()
+      FlipBuffers()
+      timp=ElapsedMilliseconds()
+      rand=Random(10000,2000)
+
+    EndIf
+    
+  EndIf
+  
+  
+  Until event=#PB_Event_CloseWindow Or KeyboardPushed(#PB_Key_Escape)
