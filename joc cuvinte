@@ -1,0 +1,80 @@
+InitSprite()
+InitKeyboard()
+InitSound()
+
+xecran=1000
+yecran=500
+streak=0
+Best=0
+ecran=OpenWindow(#PB_Any,100,100,xecran,yecran,"")
+ecranscreen=OpenWindowedScreen(WindowID(ecran),0,0,xecran,yecran)
+font=LoadFont(#PB_Any,"Courier New",100)
+fontid=FontID(font)
+font1=LoadFont(#PB_Any,"Arial",24)
+fontid1=FontID(font1)
+
+If ReadFile(0,"g.txt")
+EndIf
+
+;If LoadSound(0,"s.wav")
+;EndIf
+
+Dim cuvinte.s(1000)
+
+For i=0 To 999
+  cuvinte(i)=ReadString(0)
+Next
+
+litera.s=""
+ultima.s=""
+s.s=cuvinte(Random(1000))
+f=0
+Repeat
+  event=WindowEvent()
+  ExamineKeyboard()
+  ultima=KeyboardInkey()
+  
+  StartDrawing(ScreenOutput())
+  DrawingFont(fontid1)
+  DrawText(10,10,"Streak="+Str(streak))
+  DrawText(xecran-120,10,"Best="+Str(Best))
+ 
+  DrawingFont(fontid)
+  DrawText(xecran/2-Len(s)/2*100,200,s,#Red)
+  
+  If f=1
+    DrawText(xecran/2-Len(s)/2*100,200,litera,#Green) 
+    EndIf
+  StopDrawing()
+  
+  If ultima<>""
+    litera=litera+ultima
+    If litera=Left(s,Len(litera))
+      f=1
+    Else
+      litera=""
+      streak=0
+      f=0
+;      PlaySound(0)
+    EndIf
+    
+  EndIf
+  If litera=s
+    s=cuvinte(Random(1000))
+    litera=""
+    streak=streak+1
+    Best=Best+1
+    
+    ClearScreen(#Black)
+    FlipBuffers()
+    ClearScreen(#Black)
+    
+  EndIf
+
+  
+  
+  
+  
+  FlipBuffers()
+  ClearScreen(#Black)
+  Until event=#PB_Event_CloseWindow
