@@ -1,0 +1,49 @@
+
+UseJPEGImageDecoder()
+UsePNGImageDecoder()
+Global xec=500
+Global yec=500
+ecran=OpenWindow(#PB_Any,100,100,xec,yec,"")
+path.s=OpenFileRequester("a","",".jpg",0)
+imagine=LoadImage(#PB_Any,path)
+
+imaginegad=ImageGadget(#PB_Any,0,0,xec,yec,ImageID(imagine))
+Procedure zoom(x,y,imagine,raza)
+  If x>raza/2  And y>raza/2
+  tempimg=GrabImage(imagine,#PB_Any,x-raza/2,y-raza/2,raza,raza)
+  Dim tempv(raza,raza)
+        StartDrawing(ImageOutput(tempimg))
+    For i=0 To raza-1
+      For j=0 To raza-1
+        tempv(i,j)=Point(i,j)
+      Next
+    Next
+    StopDrawing()
+          StartDrawing(ImageOutput(imagine))
+  For i=0 To raza-1
+    For j=0 To raza-1
+      Box(i*xec/raza,j*yec/raza,xec/raza,yec/raza,RGB(Red(tempv(i,j)),Green(tempv(i,j)),Blue(tempv(i,j))))
+    Next
+  Next
+        StopDrawing()
+        FreeImage(tempimg)
+        EndIf
+  EndProcedure
+Repeat
+  
+  event=WaitWindowEvent()
+  If event=#PB_Event_Gadget
+    If EventGadget()=imaginegad
+      If EventType()=#PB_EventType_LeftClick
+        cx=WindowMouseX(ecran)
+        cy=WindowMouseY(ecran)
+        
+        zoom(cx,cy,imagine,250)
+        SetGadgetState(imaginegad,ImageID(imagine))
+ 
+      EndIf
+    EndIf
+  EndIf
+  
+
+  Until event=#PB_Event_CloseWindow
