@@ -1,0 +1,154 @@
+Global win1=OpenWindow(#PB_Any,0,0,400,400,"Simon",#PB_Window_SystemMenu | #PB_Window_ScreenCentered)
+Global imagine=CreateImage(#PB_Any,400,400)
+Global img=ImageGadget(#PB_Any,0,0,400,400,ImageID(imagine))
+Global Dim sec(50)
+Global Dim click(50)
+Global level=4
+Global m.s="Bravo"
+Global esecuri=0
+Global inaf=0
+Global i 
+Global h
+Global thread,event
+MessageRequester("","Esti la nivelul "+Str(level))
+Global nrc=0
+Procedure goleste()
+  EnableExplicit
+  Global msg.MSG
+  While PeekMessage_(@msg,WindowID(win1),0   ,  0,  #PM_REMOVE)
+  Wend
+  EndProcedure
+For i=0 To 50
+  sec(i)=Random(3)
+Next
+
+Global sema=CreateSemaphore(0)
+Procedure afiseaza(a)
+  inaf=1
+  Repeat
+    For i=0 To level-1
+      Select sec(i)
+        Case 0
+          StartDrawing(ImageOutput(imagine))
+          Box(0,0,200,200,RGB(255,255,0))
+          StopDrawing()
+        Case 1
+          StartDrawing(ImageOutput(imagine))
+          Box(200,0,200,200,RGB(0,255,0))
+          StopDrawing()
+        Case 2
+          StartDrawing(ImageOutput(imagine))
+          Box(0,200,200,200,RGB(255,0,0))
+          StopDrawing()
+        Case 3
+          StartDrawing(ImageOutput(imagine))
+          Box(200,200,200,200,RGB(0,0,255))
+          StopDrawing()
+      EndSelect
+      SetGadgetState(img,ImageID(imagine))
+      Delay(500)
+      StartDrawing(ImageOutput(imagine))
+      Box(0,0,400,400,RGB(0,0,0))
+      StopDrawing()
+      SetGadgetState(img,ImageID(imagine))
+      Delay(500)
+    Next
+    
+    Delay(500)
+    goleste()
+    inaf=0
+    WaitSemaphore(sema)
+    
+ 
+  Until 0=1
+EndProcedure
+thread=CreateThread(@afiseaza(),level)
+
+Repeat 
+    event=WaitWindowEvent()
+    If event=#PB_Event_Gadget
+      If EventGadget()=img
+        If EventType()=#PB_EventType_LeftClick
+          If WindowMouseX(win1)<200 And WindowMouseX(win1)>0 And WindowMouseY(win1)<200 And WindowMouseY(win1)>0
+            click(nrc)=0
+            StartDrawing(ImageOutput(imagine))
+          Box(0,0,200,200,RGB(255,255,0))
+          StopDrawing()
+          SetGadgetState(img,ImageID(imagine))
+          Delay(100)
+          StartDrawing(ImageOutput(imagine))
+          Box(0,0,200,200,RGB(0,0,0))
+          StopDrawing()
+          SetGadgetState(img,ImageID(imagine))
+          EndIf
+          If WindowMouseX(win1)<400 And WindowMouseX(win1)>200 And WindowMouseY(win1)<200 And WindowMouseY(win1)>0
+            click(nrc)=1
+            StartDrawing(ImageOutput(imagine))
+          Box(200,0,200,200,RGB(0,255,0))
+          StopDrawing()
+          SetGadgetState(img,ImageID(imagine))
+          Delay(100)
+          StartDrawing(ImageOutput(imagine))
+          Box(200,0,200,200,RGB(0,0,0))
+          StopDrawing()
+          SetGadgetState(img,ImageID(imagine))
+          EndIf
+          If WindowMouseX(win1)<200 And WindowMouseX(win1)>0 And WindowMouseY(win1)<400 And WindowMouseY(win1)>200
+            click(nrc)=2
+            StartDrawing(ImageOutput(imagine))
+            Box(0,200,200,200,RGB(255,0,0))
+            StopDrawing()
+            SetGadgetState(img,ImageID(imagine))
+            
+            Delay(100)
+            StartDrawing(ImageOutput(imagine))
+            Box(0,200,200,200,RGB(0,0,0))
+            StopDrawing()
+            SetGadgetState(img,ImageID(imagine))
+          
+          EndIf
+          If WindowMouseX(win1)<400 And WindowMouseX(win1)>200 And WindowMouseY(win1)<400 And WindowMouseY(win1)>200
+            click(nrc)=3
+            StartDrawing(ImageOutput(imagine))
+            Box(200,200,200,200,RGB(0,0,255))
+            StopDrawing()
+            SetGadgetState(img,ImageID(imagine))
+            Delay(100)
+            StartDrawing(ImageOutput(imagine))
+            Box(200,200,200,200,RGB(0,0,0))
+            StopDrawing()
+            SetGadgetState(img,ImageID(imagine))
+          
+          EndIf
+          
+          nrc=nrc+1
+          If nrc=level
+            h=0
+            For i=0 To level-1
+              If click(i)<>sec(i)
+                h=1
+                Break
+              EndIf
+            Next
+            If h=0
+              m="Bravo"
+              level=level+1
+              esecuri=level/2
+            Else
+              m="Ai gresit"
+              esecuri=esecuri-1
+              If level>4 And esecuri=0
+                level=level-1
+                esecuri=esecuri/2
+              EndIf
+              
+            EndIf
+            MessageRequester(m,"Esti la nivelul "+Str(level)+". Ai"+Str(esecuri)+"incercari.")
+            goleste()
+            SignalSemaphore(sema)
+            nrc=0
+            EndIf
+          EndIf
+      EndIf
+    EndIf
+Until event=#PB_Event_CloseWindow
