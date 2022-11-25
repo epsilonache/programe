@@ -1,0 +1,26 @@
+OpenConsole()
+nri=Val(Input())
+Dim v(2)
+p=0
+For h=0 To nri
+  For i=0 To 2
+    v(i)=0
+  Next
+  
+  castig=Random(2)
+  v(castig)=1
+  ales=Random(2)
+  Repeat
+    elim=Random(2)
+    Until v(elim)<>1 And elim<>ales
+    v(elim)=-1
+    ales=3-ales-elim
+    If v(ales)=1
+      p=p+1
+    EndIf
+    
+  
+  
+Next
+Debug p
+Input()
