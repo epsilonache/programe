@@ -1,0 +1,17 @@
+def findindexboundsofarea(regex,text):
+    result=[]
+    p = re.compile(regex, re.DOTALL)
+    match = p.search(text)
+    while match is not None:
+        match1=p.search(text[match.end():])
+        if match1 is None:
+            result.append(text[match.start():])
+            return result
+        else:
+
+            c=text[match.start():match1.start()+match.end()]
+            result.append(c)
+
+        text=text[match.end():]
+        match=p.search(text)
+    return result if len(result)>0 else [text]
